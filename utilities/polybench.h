@@ -7,29 +7,29 @@
  *
  * Web address: http://polybench.sourceforge.net
  */
-/*
- * polybench.h: this file is part of PolyBench/C
- *
- * Polybench header for instrumentation.
- *
- * Programs must be compiled with `-I utilities utilities/polybench.c'
- *
- * Optionally, one can define:
- *
- * -DPOLYBENCH_TIME, to report the execution time,
- *   OR (exclusive):
- * -DPOLYBENCH_PAPI, to use PAPI H/W counters (defined in polybench.c)
- *
- *
- * See README or utilities/polybench.c for additional options.
- *
- */
+ /*
+  * polybench.h: this file is part of PolyBench/C
+  *
+  * Polybench header for instrumentation.
+  *
+  * Programs must be compiled with `-I utilities utilities/polybench.c'
+  *
+  * Optionally, one can define:
+  *
+  * -DPOLYBENCH_TIME, to report the execution time,
+  *   OR (exclusive):
+  * -DPOLYBENCH_PAPI, to use PAPI H/W counters (defined in polybench.c)
+  *
+  *
+  * See README or utilities/polybench.c for additional options.
+  *
+  */
 #ifndef POLYBENCH_H
 # define POLYBENCH_H
 
 # include <stdlib.h>
 
-/* Array padding. By default, none is used. */
+  /* Array padding. By default, none is used. */
 # ifndef POLYBENCH_PADDING_FACTOR
 /* default: */
 #  define POLYBENCH_PADDING_FACTOR 0
@@ -69,7 +69,7 @@
 # ifdef POLYBENCH_USE_RESTRICT
 #  define POLYBENCH_RESTRICT restrict
 # else
-/* default: */
+ /* default: */
 #  define POLYBENCH_RESTRICT
 # endif
 
@@ -110,7 +110,7 @@
 /* Macros to allocate heap arrays.
    Example:
    polybench_alloc_2d_array(N, M, double) => allocates N x M x sizeof(double)
-					  and returns a pointer to the 2d array
+            and returns a pointer to the 2d array
  */
 # define POLYBENCH_ALLOC_1D_ARRAY(n1, type)	\
   (type(*)[n1 + POLYBENCH_PADDING_FACTOR])polybench_alloc_data (n1 + POLYBENCH_PADDING_FACTOR, sizeof(type))
@@ -123,7 +123,7 @@
 # define POLYBENCH_ALLOC_5D_ARRAY(n1, n2, n3, n4, n5, type)		\
   (type(*)[n1 + POLYBENCH_PADDING_FACTOR][n2 + POLYBENCH_PADDING_FACTOR][n3 + POLYBENCH_PADDING_FACTOR][n4 + POLYBENCH_PADDING_FACTOR][n5 + POLYBENCH_PADDING_FACTOR])polybench_alloc_data ((n1 + POLYBENCH_PADDING_FACTOR) * (n2 + POLYBENCH_PADDING_FACTOR) * (n3 + POLYBENCH_PADDING_FACTOR) * (n4 + POLYBENCH_PADDING_FACTOR) * (n5 + POLYBENCH_PADDING_FACTOR), sizeof(type))
 
-/* Macros for array declaration. */
+ /* Macros for array declaration. */
 # ifndef POLYBENCH_STACK_ARRAYS
 #  define POLYBENCH_1D_ARRAY_DECL(var, type, dim1, ddim1)		\
   type POLYBENCH_1D_F(POLYBENCH_DECL_VAR(var), dim1, ddim1); \
