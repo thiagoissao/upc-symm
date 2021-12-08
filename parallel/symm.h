@@ -42,7 +42,10 @@
 #   define N 2600
 #  endif
 
-
+#  ifdef EXTRA_EXTRALARGE_DATASET
+#   define M 3000
+#   define N 3800
+#  endif
 #endif /* !(M N) */
 
 # define _PB_M POLYBENCH_LOOP_BOUND(M,m)
@@ -70,7 +73,6 @@
 
 #ifdef DATA_TYPE_IS_DOUBLE
 #  define DATA_TYPE double
-#  define SHARED_DATA_TYPE shared double
 #  define DATA_PRINTF_MODIFIER "%0.2lf "
 #  define SCALAR_VAL(x) x
 #  define SQRT_FUN(x) sqrt(x)

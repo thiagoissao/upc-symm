@@ -42,7 +42,10 @@
 #   define N 2600
 #  endif
 
-
+#  ifdef EXTRA_EXTRALARGE_DATASET
+#   define M 3000
+#   define N 3800
+#  endif
 #endif /* !(M N) */
 
 # define _PB_M POLYBENCH_LOOP_BOUND(M,m)

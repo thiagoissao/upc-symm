@@ -1,3 +1,4 @@
+
 /**
  * This version is stamped on May 10, 2016
  *
@@ -27,11 +28,12 @@ int n = N;
 /* Variable declaration/allocation. */
 DATA_TYPE alpha;
 DATA_TYPE beta;
-// POLYBENCH_2D_ARRAY_DECL(D, shared[] DATA_TYPE, M, N, m, n);
+
+int C[M][N];
+
 /* Array initialization. */
 static
 void init_array(
-  DATA_TYPE POLYBENCH_2D(C, M, N, m, n),
   DATA_TYPE POLYBENCH_2D(A, M, M, m, m),
   DATA_TYPE POLYBENCH_2D(B, M, N, m, n))
 {
@@ -56,8 +58,7 @@ void init_array(
 /* DCE code. Must scan the entire live-out data.
    Can be used also to check the correctness of the output. */
 static
-void print_array(
-  DATA_TYPE POLYBENCH_2D(C, M, N, m, n))
+void print_array()
 {
   int i, j;
 
@@ -77,17 +78,24 @@ void print_array(
    including the call and return. */
 static
 void kernel_symm(
-  DATA_TYPE POLYBENCH_2D(C, M, N, m, n),
   DATA_TYPE POLYBENCH_2D(A, M, M, m, m),
   DATA_TYPE POLYBENCH_2D(B, M, N, m, n))
 {
   int i, j, k;
   DATA_TYPE temp2;
 
-
+  //BLAS PARAMS
+  //SIDE = 'L'
+  //UPLO = 'L'
+  // =>  Form  C := alpha*A*B + beta*C
+  // A is MxM
+  // B is MxN
+  // C is MxN
+  //note that due to Fortran array layout, the code below more closely resembles upper triangular case in BLAS
 #pragma scop
   upc_forall(i = 0; i < _PB_M; i++; i) {
-    for (j = 0; j < _PB_N; j++) {
+    for (j = 0; j < _PB_N; j++)
+    {
       temp2 = 0;
       for (k = 0; k < i; k++) {
         C[k][j] += alpha * B[i][j] * A[i][k];
@@ -100,28 +108,19 @@ void kernel_symm(
 
 }
 
-
 int main(int argc, char** argv)
 {
-
-  POLYBENCH_2D_ARRAY_DECL(C, DATA_TYPE, M, N, m, n);
   POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, M, M, m, m);
   POLYBENCH_2D_ARRAY_DECL(B, DATA_TYPE, M, N, m, n);
 
   /* Initialize array(s). */
-  init_array(
-    POLYBENCH_ARRAY(C),
-    POLYBENCH_ARRAY(A),
-    POLYBENCH_ARRAY(B));
+  init_array(POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
 
   /* Start timer. */
   polybench_start_instruments;
 
   /* Run kernel. */
-  kernel_symm(
-    POLYBENCH_ARRAY(C),
-    POLYBENCH_ARRAY(A),
-    POLYBENCH_ARRAY(B));
+  kernel_symm(POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
 
   /* Stop and print timer. */
   polybench_stop_instruments;
@@ -129,10 +128,9 @@ int main(int argc, char** argv)
 
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
-  polybench_prevent_dce(print_array(POLYBENCH_ARRAY(C)));
+  polybench_prevent_dce(print_array(m, n));
 
   /* Be clean. */
-  POLYBENCH_FREE_ARRAY(C);
   POLYBENCH_FREE_ARRAY(A);
   POLYBENCH_FREE_ARRAY(B);
 
