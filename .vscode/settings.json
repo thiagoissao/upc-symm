@@ -1,5 +1,6 @@
 {
   "files.associations": {
-    "polybench.h": "c"
+    "polybench.h": "c",
+    "symm.h": "c"
   }
 }
