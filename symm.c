@@ -20,7 +20,6 @@
 /* Include benchmark-specific header. */
 #include "symm.h"
 
-
 /* Array initialization. */
 static
 void init_array(int m, int n,

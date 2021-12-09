@@ -29,13 +29,12 @@ int n = N;
 DATA_TYPE alpha;
 DATA_TYPE beta;
 
-int C[M][N];
+shared[N * M / THREADS] int A[N][M];
+shared[N * M / THREADS] int C[N][M];
+shared[M / THREADS] int B[M][M];
 
 /* Array initialization. */
-static
-void init_array(
-  DATA_TYPE POLYBENCH_2D(A, M, M, m, m),
-  DATA_TYPE POLYBENCH_2D(B, M, N, m, n))
+static void init_array()
 {
   int i, j;
 
@@ -77,50 +76,48 @@ void print_array()
 /* Main computational kernel. The whole function will be timed,
    including the call and return. */
 static
-void kernel_symm(
-  DATA_TYPE POLYBENCH_2D(A, M, M, m, m),
-  DATA_TYPE POLYBENCH_2D(B, M, N, m, n))
-{
-  int i, j, k;
+void kernel_symm() {
   DATA_TYPE temp2;
+  int i, j, l; // private variables
 
-  //BLAS PARAMS
-  //SIDE = 'L'
-  //UPLO = 'L'
-  // =>  Form  C := alpha*A*B + beta*C
-  // A is MxM
-  // B is MxN
-  // C is MxN
-  //note that due to Fortran array layout, the code below more closely resembles upper triangular case in BLAS
-#pragma scop
-  upc_forall(i = 0; i < _PB_M; i++; i) {
-    for (j = 0; j < _PB_N; j++)
-    {
+  upc_forall(i = 0; i < N; i++; &C[i][0]) {
+    for (j = 0; j < M; j++) {
       temp2 = 0;
-      for (k = 0; k < i; k++) {
-        C[k][j] += alpha * B[i][j] * A[i][k];
-        temp2 += B[k][j] * A[i][k];
+      C[i][j] = 0;
+      for (l = 0; l < M; l++) {
+
+        C[i][j] += alpha * A[i][l] * B[l][j];
+        temp2 += B[l][j] * A[i][l];
       }
       C[i][j] = beta * C[i][j] + alpha * B[i][j] * A[i][i] + alpha * temp2;
     }
   }
-#pragma endscop
+
+  // upc_forall(i = 0; i < M; i++; &C[i][0]) {
+  //   for (j = 0; j < N; j++)
+  //   {
+  //     temp2 = 0;
+  //     for (k = 0; k < N; k++) {
+  //       C[k][j] += alpha * B[i][j] * A[i][k];
+  //       temp2 += B[k][j] * A[i][k];
+  //     }
+  //     C[i][j] = beta * C[i][j] + alpha * B[i][j] * A[i][i] + alpha * temp2;
+  //   }
+  // }
 
 }
 
 int main(int argc, char** argv)
 {
-  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, M, M, m, m);
-  POLYBENCH_2D_ARRAY_DECL(B, DATA_TYPE, M, N, m, n);
 
   /* Initialize array(s). */
-  init_array(POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
+  init_array();
 
   /* Start timer. */
   polybench_start_instruments;
 
   /* Run kernel. */
-  kernel_symm(POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
+  kernel_symm();
 
   /* Stop and print timer. */
   polybench_stop_instruments;
@@ -130,9 +127,6 @@ int main(int argc, char** argv)
      by the function call in argument. */
   polybench_prevent_dce(print_array(m, n));
 
-  /* Be clean. */
-  POLYBENCH_FREE_ARRAY(A);
-  POLYBENCH_FREE_ARRAY(B);
 
   return 0;
 }

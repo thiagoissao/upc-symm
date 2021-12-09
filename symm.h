@@ -12,7 +12,7 @@
 
  /* Default to LARGE_DATASET. */
 # if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(MEDIUM_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET)
-#  define EXTRALARGE_DATASET
+#  define LARGE_DATASET
 # endif
 
 # if !defined(M) && !defined(N)
@@ -33,7 +33,7 @@
 #  endif
 
 #  ifdef LARGE_DATASET
-#   define M 1000
+#   define M 1200
 #   define N 1200
 #  endif
 
